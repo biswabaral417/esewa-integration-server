@@ -1,11 +1,29 @@
 {
-  "name": "igesewaserver",
+  "name": "esewa-integration-server",
   "version": "1.0.0",
-  "description": "integrate esewa with this pakage",
-  "main": "index.js",
+  "description": "A flexible npm package for integrating eSewa payments.",
+  "main": "esewaIgserver.js",
   "scripts": {
+    "start": "node esewaIgserver.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "biswa baral",
-  "license": "ISC"
+  "keywords": [
+    "esewa",
+    "payment",
+    "integration"
+  ],
+  "author": "Biswa Baral",
+  "license": "MIT",
+  "dependencies": {
+    "crypto-js": "^4.1.1",
+    "express": "^4.17.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/biswabaral417/esewa-integration-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/biswabaral417/esewa-integration-server/issues"
+  },
+  "homepage": "https://github.com/biswabaral417/esewa-integration-server#readme"
 }
