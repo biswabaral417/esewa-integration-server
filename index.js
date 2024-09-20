@@ -1,10 +1,10 @@
 const EsewaIntegration = require("./esewaIgServer");
-const handlePaymentFailure = require("./handlePaymentFailure");
-const handlePaymentSuccess = require("./handlePaymentSuccess");
+const processPaymentfailure = require("./handlePaymentFailure");
+const processPaymentSuccess = require("./processPaymentSuccess");
 
 // Default export
 module.exports = EsewaIntegration;
 
 // Named exports
-module.exports.handlePaymentFailure = handlePaymentFailure;
-module.exports.handlePaymentSuccess = handlePaymentSuccess;
+module.exports.processPaymentfailure = processPaymentfailure;
+module.exports.processPaymentSuccess = processPaymentSuccess;

@@ -5,7 +5,7 @@ const verifyPaymentSignature = require("./verifyPaymentSignature");
  * @param {Object} req - The request object.
  * @param {Object} res - The response object.
  */
-const handlePaymentSuccess = async (req, res, next) => {
+const processPaymentSuccess = async (req, res, next) => {
   try {
     const decodedHash = decodeHash(req.query.data);
     const isSignatureValid = verifyPaymentSignature(decodedHash);
@@ -20,4 +20,4 @@ const handlePaymentSuccess = async (req, res, next) => {
   }
 }
 
-module.exports = handlePaymentSuccess;
+module.exports = processPaymentSuccess;

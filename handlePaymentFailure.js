@@ -4,7 +4,7 @@
  * @param {Object} req - The request object.
  * @param {Object} res - The response object.
  */
-async function handlePaymentFailure(req, res,next) {
+async function processPaymentfailure(req, res,next) {
   next()
 }
 
