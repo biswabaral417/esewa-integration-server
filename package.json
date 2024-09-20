@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/biswabaral417/esewa-integration-server.git"
+    "url": "git+https://github.com/biswabaral417/esewa-integration-server.git"
   },
   "bugs": {
     "url": "https://github.com/biswabaral417/esewa-integration-server/issues"
