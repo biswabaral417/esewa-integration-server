@@ -1,0 +1,23 @@
+const decodeHash = require("./decodeHash");
+const verifyPaymentSignature = require("./verifyPaymentSignature");
+
+/**
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ */
+const handlePaymentSuccess = async (req, res, next) => {
+  try {
+    const decodedHash = decodeHash(req.query.data);
+    const isSignatureValid = verifyPaymentSignature(decodedHash);
+
+    if (!isSignatureValid) {
+      return res.status(400).json({ error: 'Invalid payment signature.' });
+    }
+    req.params = decodeHash
+    next()
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+}
+
+module.exports = handlePaymentSuccess;
