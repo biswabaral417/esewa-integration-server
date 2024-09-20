@@ -1,4 +1,4 @@
-### RSewa Integration Package
+### ESewa Integration Package
 
 # A Node.js package for integrating with the eSewa payment gateway. This package provides an easy way to handle payment success and failure notifications.
 
