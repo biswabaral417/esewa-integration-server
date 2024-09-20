@@ -29,7 +29,7 @@ const esewa = new EsewaIntegration({
 # Create an Endpoint to Receive Payment Data
 
 ```js
-router.post("/api/pay", initiatePayment);
+router.post("/api/pay", handlePayment);
 ```
 
 # In Your Function to handlePayment
