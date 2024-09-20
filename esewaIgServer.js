@@ -14,7 +14,7 @@ class EsewaIntegration {
      * @param {Object} orderDetails - An object containing the order details.
      * @param {Object} res - The response object.
      */
-    initiatePayment({ total_amount, amount, transactionUUID, productDeliveryCharge = 0, productServiceCharge = 0, taxAmount = 0, productCode = 'EPAYTEST' }, res) {
+    initiatePayment({ total_amount, amount=0, transactionUUID, productDeliveryCharge = 0, productServiceCharge = 0, taxAmount = 0, productCode = 'EPAYTEST' }, res) {
         try {
             if (!transactionUUID || !total_amount) {
                 throw new Error("Amount and Transaction UUID are required.");
