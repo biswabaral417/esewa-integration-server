@@ -1,9 +1,9 @@
 const createSignature = require('./createSignature');
 
 class EsewaIntegration {
-    constructor({ secretKey, productCode, successUrl, failureUrl }) {
-        if (!secretKey || !productCode) {
-            throw new Error("Secret key and product code are required.");
+    constructor({ secretKey, successUrl, failureUrl }) {
+        if (!secretKey ) {
+            throw new Error("Secret key are required.");
         }
         this.secretKey = secretKey;
         this.successUrl = successUrl || "http://localhost:9000/api/esewaPayment/success";
