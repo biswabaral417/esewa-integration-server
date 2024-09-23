@@ -2,8 +2,6 @@ const CryptoJS = require('crypto-js');
 
 const verifyPaymentSignature =  (paymentData, secretKey) => {
   try {
-    console.log(paymentData)
-    console.log(secretKey)
     const { signed_field_names, signature, ...fields } = paymentData;
     const message = signed_field_names.split(",").map((field) => (
       field === "total_amount" ? "total_amount=" + paymentData["total_amount"].split(",").join("") :

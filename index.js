@@ -87,7 +87,6 @@ class EsewaIntegration {
     }
 
     processPaymentSuccess(req, res, next) {
-        console.log(this.secretKey)
         return processPaymentSuccess(req, res, next, this.secretKey);
     }
 }

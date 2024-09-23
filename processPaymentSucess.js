@@ -7,13 +7,12 @@ const verifyPaymentSignature = require("./verifyPaymentSignature");
  */
 const processPaymentSuccess = async (req, res, next,secretKey) => {
   try {
-    console.log(secretKey)
     const decodedHash = decodeHash(req.query.data);
     const isSignatureValid = verifyPaymentSignature(decodedHash,secretKey);
     if (!isSignatureValid) {
       return res.status(400).json({ error: 'Invalid payment signature.' });
     }
-    req.params = decodeHash
+    req.params = decodedHash
     next()
   } catch (error) {
     return res.status(500).json({ error: error.message });
