@@ -39,7 +39,7 @@ class EsewaIntegration {
             // Set the transaction_uuid cookie with a max age of 15 minutes (900000 milliseconds)
 
             res.cookie('transaction_uuid', transactionUUID, {
-                maxAge: 900000, // 15 minutes in milliseconds
+                maxAge: 30000, // 15 minutes in milliseconds
                 httpOnly: true, // Ensures the cookie is not accessible via client-side JavaScript
                 secure: process.env.NODE_ENV === 'production', // Ensure the cookie is only sent over HTTPS in production
                 sameSite: 'Strict' // Protects against CSRF attacks by not sending the cookie with cross-site requests
