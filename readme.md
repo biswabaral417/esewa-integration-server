@@ -73,7 +73,7 @@ app
 
 ```js
 const processPaymentSucess=esewa.processPaymentSuccess
-app.get("/payment/success", , async (req, res) => {
+app.get("/payment/success",processPaymentSucess , async (req, res) => {
   try {
     const { transaction_uuid, amount, ...otherFields } = req.params; // Use req.query for GET parameters
 
