@@ -13,7 +13,6 @@ npm install esewa-integration-package
 ## Initialize Integration
 
 # To set up the integration, use the following code:
-
 ```js
 const EsewaIntegration = require("esewa-integration-package");
 
@@ -24,6 +23,7 @@ const esewa = new EsewaIntegration({
   failureUrl: "https://yourdomain.com/payment/failure", // URL to handle failed payments
 });
 ```
+# get your secret key for testin here "http://developer.esewa.com.np/pages/Epay#integration"
 
 # // Note: There is no processPaymentFailure middleware in this class as no data is returned by eSewa while hitting your failure URL.
 
