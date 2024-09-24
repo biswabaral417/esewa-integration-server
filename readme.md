@@ -54,7 +54,7 @@ app
     esewa.initiatePayment(
       {
         total_amount: total_amount, // Total amount to be paid (required)
-        transactionUUID: transactionUuid, // Unique transaction identifier (required)
+        transactionUUID: uuid, // Unique transaction identifier (required)
         amount: total_amount, // Amount being passed (optional)
         productCode: "EPAYTEST", // Product code (optional)
       },
