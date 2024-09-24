@@ -83,7 +83,7 @@ class EsewaIntegration {
     redirectToClientSite(res, redirectURL, messageProps = {}) {
         const queryParams = new URLSearchParams(messageProps).toString();
         const redirectUrl = `${redirectURL}?${queryParams}`;
-        res.redirect(redirectUrl);
+        res.sendStatus(200).redirect(redirectUrl);
     }
 
     processPaymentSuccess(req, res, next) {

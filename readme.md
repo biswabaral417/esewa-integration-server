@@ -147,8 +147,10 @@ app.get("/payment/failure", async (req, res) => {
 
 ```js
 const esewa = new EsewaIntegration({
-  secretKey: process.env.ESEWA_SECRET_KEY || "your-esewa-secret-key", // Your eSewa secret key
-  successUrl: "https://yourdomain.com/payment/success", // URL to handle successful payments
+  secretKey: process.env.ESEWA_SECRET_KEY || "your-esewa-secret-key", // Your eSewa secret key  
+  //  u can get esewa key for testin purposeshere http://developer.esewa.com.np/pages/Epay#integration 
+// For UAT, SecretKey will be "**secretkey" ( Input should be text type.) "**the secret key is availble on avove link" 
+successUrl: "https://yourdomain.com/payment/success", // URL to handle successful payments
   failureUrl: "https://yourdomain.com/payment/failure", // URL to handle failed payments
 });
 ```
