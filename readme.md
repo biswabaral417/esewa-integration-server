@@ -25,7 +25,7 @@ const esewa = new EsewaIntegration({
 });
 ```
 
-# // Note: There is no processPaymentFailure middleware in this class as no data is returned by eSewa apart from hitting your failure URL.
+# // Note: There is no processPaymentFailure middleware in this class as no data is returned by eSewa while hitting your failure URL.
 
 ## Initiate Payment
 
