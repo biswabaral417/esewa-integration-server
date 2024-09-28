@@ -7,14 +7,15 @@ A Node.js package for integrating with the eSewa payment gateway. This package p
 To install the package, run:
 
 ```bash
-npm install esewa-integration-package
+npm install esewa-integration-server
 ```
 
 ## Initialize Integration
 
 # To set up the integration, use the following code:
+
 ```js
-const EsewaIntegration = require("esewa-integration-package");
+const EsewaIntegration = require("esewa-integration-server");
 
 // Initialize with custom configuration
 const esewa = new EsewaIntegration({
@@ -23,13 +24,12 @@ const esewa = new EsewaIntegration({
   failureUrl: "https://yourdomain.com/payment/failure", // URL to handle failed payments
 });
 ```
-# get your secret key for testin here "http://developer.esewa.com.np/pages/Epay#integration"
 
-# // Note: There is no processPaymentFailure middleware in this class as no data is returned by eSewa while hitting your failure URL.
+# get your secret key for testin here
 
-## Initiate Payment
+# "http://developer.esewa.com.np/pages/Epay#integration"
 
-# Create an endpoint to receive payment data. This sends an auto-submitting form, so make sure this is a separate link on your website that can be accessed. this method also sets an cookie called transaction_uuid to track the payment
+# Initiate Payment
 
 ```js
 app
@@ -50,21 +50,31 @@ app
     const savedOrder = await order.save();
     const uuid = savedOrder._id; // MongoDB provides an _id after saving
 
-    //use the esewa.initiatePayment function to intitiate payment process this will send client a auto submitting form
+    //use the esewa.initiatePayment function to intitiate payment process this will send client an HTML file with auto submitting form
     esewa.initiatePayment(
       {
         total_amount: total_amount, // Total amount to be paid (required)
         transactionUUID: uuid, // Unique transaction identifier (required)
         amount: total_amount, // Amount being passed (optional)
         productCode: "EPAYTEST", // Product code (optional)
+
+       
       },
-      res
-    ); // Redirect client to eSewa payment
+      res //you need to sent the response object as well
+    );
   })
   .catch((error) => {
     console.error("Error saving order:", error.message);
     res.status(500).json({ error: "Failed to save order." });
   });
+   /* these are all other feilds that you can input while initiating the payment 
+         total_amount, 
+        amount = 0, 
+        transactionUUID, 
+        productDeliveryCharge = 0, 
+        productServiceCharge = 0, 
+        taxAmount = 0, 
+        productCode = 'EPAYTEST' */
 ```
 
 ## Handle Payment Success
@@ -72,8 +82,8 @@ app
 # Define the endpoint for handling successful payments.
 
 ```js
-const processPaymentSucess=esewa.processPaymentSuccess
-app.get("/payment/success",processPaymentSucess , async (req, res) => {
+const processPaymentSuccess = esewa.processPaymentSuccess;
+app.get("/payment/success", processPaymentSuccess, async (req, res) => {
   try {
     const { transaction_uuid, amount, ...otherFields } = req.params; // Use req.query for GET parameters
 
@@ -117,7 +127,7 @@ app.get("/payment/failure", async (req, res) => {
     };
 
     // Retrieve the transaction UUID from the cookie
-    const transactionUUID = req.cookies.transaction_uuid;
+    const transactionUUID = req.transactionUUID;
 
     if (transactionUUID) {
       // Delete the order associated with the transaction UUID
@@ -147,10 +157,10 @@ app.get("/payment/failure", async (req, res) => {
 
 ```js
 const esewa = new EsewaIntegration({
-  secretKey: process.env.ESEWA_SECRET_KEY || "your-esewa-secret-key", // Your eSewa secret key  
-  //  u can get esewa key for testin purposeshere http://developer.esewa.com.np/pages/Epay#integration 
-// For UAT, SecretKey will be "**secretkey" ( Input should be text type.) "**the secret key is availble on avove link" 
-successUrl: "https://yourdomain.com/payment/success", // URL to handle successful payments
+  secretKey: process.env.ESEWA_SECRET_KEY || "your-esewa-secret-key", // Your eSewa secret key
+  //  u can get esewa key for testin purposeshere http://developer.esewa.com.np/pages/Epay#integration
+  // For UAT, SecretKey will be "**secretkey" ( Input should be text type.) "**the secret key is availble on avove link"
+  successUrl: "https://yourdomain.com/payment/success", // URL to handle successful payments
   failureUrl: "https://yourdomain.com/payment/failure", // URL to handle failed payments
 });
 ```
@@ -161,19 +171,23 @@ successUrl: "https://yourdomain.com/payment/success", // URL to handle successfu
 const paymentSuccess = esewa.processPaymentSuccess;
 /*this is supposed to be used as a middleway in your success route*/
 /* it attaches the responsefrom esewa when successURl is hit to req.params*/
+
+cosnt paymentFailyre=esewa.processPaymentFailure;
 ```
 
 ```js
-  esewa.redirectToClientSite();//this method is meant to redirect to the client site from the server endpoint to get esewa payment success 
-  // this method take two three inputs redirect url message props and res ,
-  // res is the response from your server, redirect url is the page you want to redirect to 
-  // message is optional feild you may want to use it takes an object that is then passed to cleint as query while redirecting 
-    const redirectUrl = "http://localhost:3000/home"; // Ensure this URL is correct
-    const messageProps = {
-      paymentFailed: "Oops!",
-      sorry: "Sorry, your payment failed.",
-    };
+esewa.redirectToClientSite(); //this method is meant to redirect to the client site from the server endpoint to get esewa payment success
+// this method take two three inputs redirect url message props and res ,
+// res is the response from your server, redirect url is the page you want to redirect to
+// message is optional feild you may want to use it takes an object that is then passed to cleint as query while redirecting
+const redirectUrl = "http://localhost:3000/home"; // Ensure this URL is correct
+const messageProps = {
+  paymentFailed: "Oops!",
+  sorry: "Sorry, your payment failed.",
+};
 ```
+
+
 
 # Make sure to have appropriate error handling in place.
 

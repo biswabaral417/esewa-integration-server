@@ -1,4 +1,5 @@
 const createSignature = require('./createSignature');
+const processPaymentFailure = require('./processPaymentFailure');
 const processPaymentSuccess = require('./processPaymentSucess');
 
 class EsewaIntegration {
@@ -65,7 +66,6 @@ class EsewaIntegration {
                 </body>
                 </html>
             `;
-    
             // Send the form as the response
             res.status(200).send(formHtml);
         } catch (error) {
@@ -88,6 +88,9 @@ class EsewaIntegration {
 
     processPaymentSuccess(req, res, next) {
         return processPaymentSuccess(req, res, next, this.secretKey);
+    }
+    processPaymentFailure(req, res, next) {
+        return processPaymentFailure(req, res, next, this.secretKey);
     }
 }
 
