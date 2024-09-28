@@ -70,7 +70,13 @@ app
         transactionUUID: uuid, // Unique transaction identifier (required)
         amount: total_amount, // Amount being passed (required)
         productCode: "EPAYTEST", // Product code (optional)
-      },
+
+
+      //there are other optional feilds too
+        // productDeliveryCharge = 0,
+        // productServiceCharge = 0,
+        // taxAmount = 0,
+      }
       res // Send the response object
     );
   })
@@ -80,7 +86,7 @@ app
   });
 ```
 
-Handle Payment Success
+# Handle Payment Success
 
 Define the endpoint for handling successful payments:
 
@@ -115,7 +121,7 @@ app.get("/payment/success", processPaymentSuccess, async (req, res) => {
 });
 ```
 
-Handle Payment Failure
+# Handle Payment Failure
 
 Define the endpoint for handling failed payments:
 
