@@ -55,10 +55,13 @@ app
       {
         total_amount: total_amount, // Total amount to be paid (required)
         transactionUUID: uuid, // Unique transaction identifier (required)
-        amount: total_amount, // Amount being passed (optional)
+        amount: total_amount, // Amount being passed (required) not neccessary to be equal to total amount but if you are including other charges
         productCode: "EPAYTEST", // Product code (optional)
+        //other optional inputs
+    // productDeliveryCharge = 0,
+    //     productServiceCharge = 0,
+    //     taxAmount = 0,
 
-       
       },
       res //you need to sent the response object as well
     );
@@ -67,14 +70,7 @@ app
     console.error("Error saving order:", error.message);
     res.status(500).json({ error: "Failed to save order." });
   });
-   /* these are all other feilds that you can input while initiating the payment 
-         total_amount, 
-        amount = 0, 
-        transactionUUID, 
-        productDeliveryCharge = 0, 
-        productServiceCharge = 0, 
-        taxAmount = 0, 
-        productCode = 'EPAYTEST' */
+  
 ```
 
 ## Handle Payment Success
@@ -186,8 +182,6 @@ const messageProps = {
   sorry: "Sorry, your payment failed.",
 };
 ```
-
-
 
 # Make sure to have appropriate error handling in place.
 

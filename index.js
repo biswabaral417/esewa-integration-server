@@ -19,7 +19,7 @@ class EsewaIntegration {
      */
       initiatePayment({ 
         total_amount, 
-        amount = 0, 
+        amount, 
         transactionUUID, 
         productDeliveryCharge = 0, 
         productServiceCharge = 0, 
@@ -27,8 +27,8 @@ class EsewaIntegration {
         productCode = 'EPAYTEST' 
     }, res) {
         try {
-            if (!transactionUUID || !total_amount) {
-                throw new Error("Amount and Transaction UUID are required.");
+            if (!transactionUUID || !total_amount||amount) {
+                throw new Error("amount,total_amount and Transaction UUID are required.");
             }
             res.clearCookie('transaction_uuid');
             //clear this cookie as user initiates new payment 
@@ -90,7 +90,7 @@ class EsewaIntegration {
         return processPaymentSuccess(req, res, next, this.secretKey);
     }
     processPaymentFailure(req, res, next) {
-        return processPaymentFailure(req, res, next, this.secretKey);
+        return processPaymentFailure(req, res, next);
     }
 }
 
