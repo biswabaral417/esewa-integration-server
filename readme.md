@@ -86,6 +86,59 @@ app
   });
 ```
 
+# if you are using react at frontend
+
+you should do this to get the response to get redirect to esewa payment gateaway
+
+```js
+import React, { useState } from "react";
+
+export default function YourFunction() {
+  const [amt, setAmt] = useState("");
+
+  const initiatePayment = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch(
+        `/api/esewa/initiatePayment?total_amount=${amt}`,
+        {
+          method: "GET", // Adjust the method if necessary
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      //you can also send the amt and other feilds in req.body its your choice but adjust according in your backend too
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const html = await response.text(); // Assuming the response is HTML
+      document.open();
+      document.write(html);
+      document.close();
+    } catch (error) {
+      // Handle error
+      console.error("Error initiating payment:", error);
+    }
+  };
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={amt}
+        onChange={(e) => setAmt(e.target.value)}
+        placeholder="Enter amount"
+      />
+      <button onClick={initiatePayment}>Initiate Payment</button>
+    </div>
+  );
+}
+```
+
 # Handle Payment Success
 
 Define the endpoint for handling successful payments:
