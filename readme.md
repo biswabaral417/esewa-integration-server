@@ -90,6 +90,17 @@ app.get("/redirect-user", (req, res) => {
 ```
 
 # Options
+## Configuration Options
+
+| **Field**         | **Type**                 | **Required** | **Description**                                 |
+| ----------------- | ------------------------ | ------------ | ----------------------------------------------- |
+| `merchantCode`    | `string`                 | Yes          | Your eSewa merchant code.                       |
+| `successURL`      | `string`                 | Yes          | URL to redirect after a successful transaction. |
+| `failureURL`      | `string`                 | Yes          | URL to redirect after a failed transaction.     |
+| `environment`     | `'test' \| 'production'` | No           | Defaults to `'test'`.                           |
+| `secretKey`       | `string`                 | Yes          | Used for secure HMAC signature verification.    |
+| `baseRedirectURL` | `string`                 | No           | Optional: Base client URL for redirection.      |
+
     Option	Type	Default	Description
     secretKey	string	"8gBm/:&EnhH.1/q"	eSewa secret key for signing
     successUrl	string	http://localhost:9000/api/esewaPayment/success	Callback URL on payment success
@@ -115,44 +126,44 @@ Contributing
 # MORE DETAILS
 # TYPE DEFs
 
-| **Type Name**                | **Field**             | **Type**                                | **Description**                                                                 |
-|-----------------------------|-----------------------|------------------------------------------|---------------------------------------------------------------------------------|
-| `EsewaConfig`               | `merchantCode`        | `string`                                 | Your merchant code provided by eSewa.                                          |
-|                             | `successURL`          | `string`                                 | Callback URL on successful payment.                                            |
-|                             | `failureURL`          | `string`                                 | Callback URL on failed payment.                                                |
-|                             | `environment`         | `'test' \| 'production'` (optional)       | Environment setting; defaults to `'test'`.                                     |
-|                             | `secretKey`           | `string`                                 | Secret key for signature verification.                                         |
-|                             | `baseRedirectURL`     | `string` (optional)                      | Optional client redirect base URL after payment.                               |
-| `EsewaCallbackQuery`        | `amt`                 | `string`                                 | Amount involved in the transaction.                                            |
-|                             | `pid`                 | `string`                                 | Product ID of the transaction.                                                 |
-|                             | `rid`                 | `string`                                 | Reference ID returned by eSewa.                                                |
-|                             | `scd`                 | `string`                                 | Merchant code used during transaction.                                         |
-|                             | `su`                  | `string` (optional)                      | Optional override for success redirect.                                        |
-|                             | `fu`                  | `string` (optional)                      | Optional override for failure redirect.                                        |
-| `EsewaStatusResponse`       | `status`              | `'Success' \| 'Failure' \| 'Pending'`     | Status of the transaction after verification.                                  |
-|                             | `referenceId`         | `string`                                 | Unique reference ID from eSewa.                                                |
-|                             | `productId`           | `string`                                 | Product ID of the original transaction.                                        |
-|                             | `amount`              | `number`                                 | Amount paid in the transaction.                                                |
-|                             | `message`             | `string` (optional)                      | Optional message or error detail.                                              |
-| `RedirectOptions`           | `siteName`            | `string`                                 | Base site name for redirection.                                                |
-|                             | `messageProps`        | `Record<string, string \| number>`       | Object of message props passed as query parameters.                            |
-|                             | `res`                 | `express.Response`                       | Express response object for handling redirection.                              |
-| `SignaturePayload`          | `amt`                 | `string`                                 | Amount.                                                                         |
-|                             | `pid`                 | `string`                                 | Product ID.                                                                     |
-|                             | `scd`                 | `string`                                 | Merchant code.                                                                  |
-|                             | `rid`                 | `string`                                 | Reference ID.                                                                   |
-|                             | `secretKey`           | `string`                                 | Secret key used to compute HMAC.                                               |
-| `PaymentInitiationOptions`  | `amount`              | `number`                                 | Amount to be paid.                                                             |
-|                             | `productId`           | `string`                                 | Product ID.                                                                     |
-|                             | `merchantCode`        | `string`                                 | Merchant code.                                                                  |
-|                             | `successURL`          | `string`                                 | Success redirect URL.                                                           |
-|                             | `failureURL`          | `string`                                 | Failure redirect URL.                                                           |
-|                             | `responseType`        | `'json' \| 'form'` (optional)           | Format of the response. Defaults to `'form'`.                                  |
-| `EsewaMiddlewareHandler`    | —                     | `Function(req, res, next): void`         | Standard Express middleware for handling eSewa callbacks.                      |
-| `PaymentSuccessHandler`     | —                     | `Function(query, status, req, res): void`| Called when payment succeeds.                                                  |
-| `PaymentFailureHandler`     | —                     | `Function(query, req, res): void`        | Called when payment fails.                                                     |
-| `GeneratePaymentForm`       | —                     | `Function(options): string \| object`     | Generates HTML form or JSON for payment initiation.                            |
-| `VerifySignature`           | —                     | `Function(payload, signature): boolean`  | Validates the HMAC-SHA256 signature received from eSewa.                       |
+| **Type Name**              | **Field**         | **Type**                                  | **Description**                                           |
+| -------------------------- | ----------------- | ----------------------------------------- | --------------------------------------------------------- |
+| `EsewaConfig`              | `merchantCode`    | `string`                                  | Your merchant code provided by eSewa.                     |
+|                            | `successURL`      | `string`                                  | Callback URL on successful payment.                       |
+|                            | `failureURL`      | `string`                                  | Callback URL on failed payment.                           |
+|                            | `environment`     | `'test' \| 'production'` (optional)       | Environment setting; defaults to `'test'`.                |
+|                            | `secretKey`       | `string`                                  | Secret key for signature verification.                    |
+|                            | `baseRedirectURL` | `string` (optional)                       | Optional client redirect base URL after payment.          |
+| `EsewaCallbackQuery`       | `amt`             | `string`                                  | Amount involved in the transaction.                       |
+|                            | `pid`             | `string`                                  | Product ID of the transaction.                            |
+|                            | `rid`             | `string`                                  | Reference ID returned by eSewa.                           |
+|                            | `scd`             | `string`                                  | Merchant code used during transaction.                    |
+|                            | `su`              | `string` (optional)                       | Optional override for success redirect.                   |
+|                            | `fu`              | `string` (optional)                       | Optional override for failure redirect.                   |
+| `EsewaStatusResponse`      | `status`          | `'Success' \| 'Failure' \| 'Pending'`     | Status of the transaction after verification.             |
+|                            | `referenceId`     | `string`                                  | Unique reference ID from eSewa.                           |
+|                            | `productId`       | `string`                                  | Product ID of the original transaction.                   |
+|                            | `amount`          | `number`                                  | Amount paid in the transaction.                           |
+|                            | `message`         | `string` (optional)                       | Optional message or error detail.                         |
+| `RedirectOptions`          | `siteName`        | `string`                                  | Base site name for redirection.                           |
+|                            | `messageProps`    | `Record<string, string \| number>`        | Object of message props passed as query parameters.       |
+|                            | `res`             | `express.Response`                        | Express response object for handling redirection.         |
+| `SignaturePayload`         | `amt`             | `string`                                  | Amount.                                                   |
+|                            | `pid`             | `string`                                  | Product ID.                                               |
+|                            | `scd`             | `string`                                  | Merchant code.                                            |
+|                            | `rid`             | `string`                                  | Reference ID.                                             |
+|                            | `secretKey`       | `string`                                  | Secret key used to compute HMAC.                          |
+| `PaymentInitiationOptions` | `amount`          | `number`                                  | Amount to be paid.                                        |
+|                            | `productId`       | `string`                                  | Product ID.                                               |
+|                            | `merchantCode`    | `string`                                  | Merchant code.                                            |
+|                            | `successURL`      | `string`                                  | Success redirect URL.                                     |
+|                            | `failureURL`      | `string`                                  | Failure redirect URL.                                     |
+|                            | `responseType`    | `'json' \| 'form'` (optional)             | Format of the response. Defaults to `'form'`.             |
+| `EsewaMiddlewareHandler`   | —                 | `Function(req, res, next): void`          | Standard Express middleware for handling eSewa callbacks. |
+| `PaymentSuccessHandler`    | —                 | `Function(query, status, req, res): void` | Called when payment succeeds.                             |
+| `PaymentFailureHandler`    | —                 | `Function(query, req, res): void`         | Called when payment fails.                                |
+| `GeneratePaymentForm`      | —                 | `Function(options): string \| object`     | Generates HTML form or JSON for payment initiation.       |
+| `VerifySignature`          | —                 | `Function(payload, signature): boolean`   | Validates the HMAC-SHA256 signature received from eSewa.  |
 
 
 
