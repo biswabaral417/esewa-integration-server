@@ -1,32 +1,52 @@
 {
   "name": "esewa-integration-server",
-  "version": "2.2.8",
+  "version": "2.3.0",
   "description": "A flexible npm package for integrating eSewa payments.",
-  "main": "index.js",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "exports": {
+    "require": "./dist/cjs/index.js",
+    "import": "./dist/esm/index.js"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "start": "node esewaIgServer.js",
+    "start": "node dist/cjs/index.js",
+    "dev": "tsup src/index.ts --dts --format esm,cjs --watch --out-dir dist",
+    "build": "tsup src/index.ts --dts --format esm,cjs --out-dir dist",
+    "postbuild": "cpy \"src/Types/**/*.d.ts\" --cwd=./ --dest=dist/Types",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "esewa",
     "payment",
-    "integration"
+    "integration",
+    "nepal",
+    "gateway",
+    "typescript"
   ],
   "author": "Biswa Baral",
   "license": "MIT",
   "dependencies": {
     "crypto-js": "^4.1.1",
-    "express": "^4.17.1"
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.2",
+    "@types/node": "^22.15.21",
+    "cpy": "^11.1.0",
+    "prettier": "^3.3.3",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/biswabaral417/esewa-integration-server.git"
+    "url": "https://github.com/biswabaral417/esewa-integration-server.git"
   },
   "bugs": {
     "url": "https://github.com/biswabaral417/esewa-integration-server/issues"
   },
-  "homepage": "https://github.com/biswabaral417/esewa-integration-server/discussions",
-  "devDependencies": {
-    "prettier": "^3.3.3"
-  }
+  "homepage": "https://github.com/biswabaral417/esewa-integration-server"
 }

@@ -1,201 +1,169 @@
-# ESewa Integration server pakage
-# A Node.js package for integrating with the eSewa payment gateway. This package provides an easy way to handle payment success and failure notifications.
+## esewa-integration-server
+
+# A flexible Node package for integrating with the eSewa payment gateway. Easily handle payment initiation, success, and failure notifications in your Express app.
+
+# Features
+
+   Simple eSewa payment initiation with HTML form redirect
+
+    Middleware to process payment success and failure callbacks
+
+    Automatic client redirection with customizable messages
+
+    Supports Node.js & Express with TypeScript typings
+    
 
 # Installation
-To install the package, run:
 
 ```bash
-    npm install esewa-integration-server
+  npm install esewa-integration-server
 ```
-# initialize Integration
 
-To set up the integration, use the following code:
+# Quick Start
+ Initialize the Integration
 ```js
+
 const EsewaIntegration = require("esewa-integration-server");
 
-// Initialize with custom configuration
-const esewa = new EsewaIntegration({
-  secretKey: process.env.ESEWA_SECRET_KEY || "your-esewa-secret-key", // Your eSewa secret key
-  successUrl: "https://yourdomain.com/payment/success", // URL to handle successful payments
-  failureUrl: "https://yourdomain.com/payment/failure", // URL to handle failed payments
-});
-```
-you can also change the methods to set cookies, the cookie set are used to track payment when the transaction fails :
-```js
 const esewa = new EsewaIntegration({
   secretKey: process.env.ESEWA_SECRET_KEY || "your-esewa-secret-key",
   successUrl: "https://yourdomain.com/payment/success",
   failureUrl: "https://yourdomain.com/payment/failure",
 
+  // Optional cookie settings for tracking payment failures
   sameSite: "strict",
-  secure: "true",
+  secure: true,
 });
 ```
-# Get Your Secret Key
-
-You can get your secret key for testing at "http://developer.esewa.com.np/pages/Epay#integration"
 Initiate Payment
-
-# To intitate payment
 ```js
-app
-  .get("/esewa/initiate", async (req, res) => {
-    const { total_amount } = req.query; // You can also send these details in req.body
-    const uuid=somerandomuuid1231  //uuid generate an unique uuid
-    esewa.initiatePayment(
-      {
-        total_amount, // Total amount to be paid (required)
-        transactionUUID: uuid, // Unique transaction identifier (required)
-        amount: total_amount, // Amount being passed (required)
-        productCode: "EPAYTEST", // Product code (optional)
+app.get("/esewa/initiate", async (req, res) => {
+  const { total_amount } = req.query;
+  const transactionUUID = generateUniqueUUID(); // your UUID generator function
 
-      //theother optional feilds 
-        // productDeliveryCharge = 0,
-        // productServiceCharge = 0,
-        // taxAmount = 0,
-      }
-      res 
-    );
-  })
-  .catch((error) => {
-    console.error("Error saving order:", error.message);
-    res.status(500).json({ error: "Failed to save order." });
-  });
+  esewa.initiatePayment(
+    {
+      total_amount,
+      transactionUUID,
+      amount: total_amount,
+      productCode: "EPAYTEST", // optional
+      // productDeliveryCharge: 0,
+      // productServiceCharge: 0,
+      // taxAmount: 0,
+    },
+    res
+  );
+});
 ```
-# if you are using react at frontend
+Frontend Example (React)
 
-you should do implement function that uses the html file you get as response,then document.open,document.write and document.close to redirect to esewa payment gateaway
-```jsx
+If using React or another frontend framework, you can render the HTML response from the initiate endpoint directly to redirect the user:
+```js
 import React, { useState } from "react";
 
-export default function YourFunction() {
-  const [amt, setAmt] = useState("");
+export default function Payment() {
+  const [amount, setAmount] = useState("");
 
-  const initiatePayment = async (e) => {
+  async function initiatePayment(e) {
     e.preventDefault();
-    try {
-      const response = await fetch(
-        `/api/esewa/initiatePayment?total_amount=${amt}`,
-        {
-          method: "GET", // Adjust the method if necessary
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      //you can also send the amt and other feilds in req.body its your choice but adjust according in your backend too
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
 
-      const html = await response.text(); // the response from esewa.initatePayment() is an html file 
+    try {
+      const response = await fetch(`/esewa/initiate?total_amount=${amount}`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!response.ok) throw new Error("Failed to initiate payment");
+
+      const html = await response.text();
       document.open();
       document.write(html);
       document.close();
     } catch (error) {
-      // Handle error
-      console.error("Error initiating payment:", error);
+      console.error("Payment initiation error:", error);
     }
-  };
+  }
 
   return (
-    {/*don't copy all these brother, this is my bs example react component */}
-    <div>
+    <form onSubmit={initiatePayment}>
       <input
-        type="text"
-        value={amt}
-        onChange={(e) => setAmt(e.target.value)}
+        type="number"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
         placeholder="Enter amount"
+        required
       />
-      <button onClick={initiatePayment}>Initiate Payment</button>
-    </div>
+      <button type="submit">Pay with eSewa</button>
+    </form>
   );
 }
-
 ```
-# Handle Payment Success
-
-Define the endpoint for handling successful payments:
-
-```js 
-app.get("/payment/success", esewa.processPaymentSuccess, async (req, res) => {
-  try {
-    const { transaction_uuid, amount, ...otherFields } = req.params; // Use req.params for GET parameters 
-
-    console.log(transaction_uuid)
-    console.log(amount)
-
-    // Prepare the redirect URL and optional message properties
-    const redirectUrl = "http://your_domain.com/success"; 
-    const messageProps = {
-      paymentSuccess: "Yay!",
-      thanks: "Thank you for your order!",
-    };
-
-    // Redirect the client to the specified URL with message properties
-    esewa.redirectToClientSite(res, redirectUrl, messageProps);
-  } catch (error) {
-    console.error("Error handling payment success:", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
-```
-# Handle Payment Failure
-
-Define the endpoint for handling failed payments:
-
+Handle Payment Success
 ```js
+app.get("/payment/success", esewa.processPaymentSuccess, (req, res) => {
+  const { transaction_uuid, amount } = req.params;
 
-app.get("/payment/failure", esewa.processPaymentFailure, async (req, res) => {
-  try {
-    const redirectUrl = "http://your_domain.com/failure"; // set at url page you want your clent to get when payment fails
-    const messageProps = {
-      paymentFailed: "Oops!",
-      sorry: "Sorry, your payment failed.",
-    };
-    // Retrieve the transaction UUID from the request object it is set by esewa.processPaymentFailure middleware
-    console.log(req.transactionUUID)
-    // Redirect the client to the specified URL with message properties
+  console.log("Payment succeeded:", transaction_uuid, amount);
 
-    esewa.redirectToClientSite(res, redirectUrl, messageProps);
-  } catch (error) {
-    console.error("Error handling payment failure:", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
+  const redirectUrl = "https://yourdomain.com/success";
+  const messageProps = {
+    paymentSuccess: "Payment successful!",
+    thanks: "Thank you for your order!",
+  };
 
-```
-# Additional Notes
-
-Details of Methods Initialization Class
-```js
-const esewa = new EsewaIntegration({
-  secretKey: process.env.ESEWA_SECRET_KEY || "your-esewa-secret-key",
-  successUrl: "https://yourdomain.com/payment/success",
-  failureUrl: "https://yourdomain.com/payment/failure",
+  esewa.redirectToClientSite(res, redirectUrl, messageProps);
 });
 ```
-# This class has the following methods:
-
+Handle Payment Failure
 ```js
-esewa.processPaymentSuccess; //Used as middleware in your success route, it attaches the response from eSewa when the success URL is hit to req.params.
-esewa.processPaymentFailure; // Handles payment failure.meant to be used as url
 
-esewa.redirectToClientSite(); // Redirects to the client site with message properties
-esewa.initiatePayment(); //sends an html file to the client that  self submits to esewa but on some frontend frame works you may have to manually open the html file 
+app.get("/payment/failure", esewa.processPaymentFailure, (req, res) => {
+  const { transactionUUID } = req; // set by middleware
 
+  console.log("Payment failed for transaction:", transactionUUID);
+
+  const redirectUrl = "https://yourdomain.com/failure";
+  const messageProps = {
+    paymentFailed: "Payment failed.",
+    sorry: "Sorry, your payment could not be processed.",
+  };
+
+  esewa.redirectToClientSite(res, redirectUrl, messageProps);
+});
 ```
-# Important Considerations
+# API Reference
+# Method	Description
 
-Make sure to implement appropriate error handling.
-Update the success and failure URLs as needed for your production environment.
-Consider implementing logging for better traceability of issues.
+  new EsewaIntegration(opts)	Create a new instance with config options
+  esewa.initiatePayment(paymentDetails, res)	Initiates payment and sends HTML form redirect
+  esewa.processPaymentSuccess	Express middleware to handle success callback
+  esewa.processPaymentFailure	Express middleware to handle failure callback
+  esewa.redirectToClientSite(res, url, messageProps)	Redirects to client URL with optional message data
+  
+Configuration Options
+
+    secretKey (string, required): Your eSewa secret key.
+
+    successUrl (string, required): URL to handle successful payment callbacks.
+
+    failureUrl (string, required): URL to handle failed payment callbacks.
+
+    sameSite (string, optional): Cookie SameSite attribute (e.g., "strict").
+
+    secure (boolean, optional): Cookie Secure attribute (true or false).
+
+# Get Your Secret Key for prod from esewa,   secret key for dev is already included
+
+# Notes
+
+    Make sure to implement proper error handling in your routes.
+
+    Update success and failure URLs for production environment.
+
+    This package uses cookies to track payment state on failure for better UX.
+
+    You can extend and customize middleware handlers as needed.
 
 # License
 
-This package is licensed under the MIT License.
-About
-
-
+#MIT License © Biswa Baral
