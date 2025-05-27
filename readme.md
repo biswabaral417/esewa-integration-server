@@ -1,169 +1,162 @@
-## esewa-integration-server
+### esewa Integration Server
 
-# A flexible Node package for integrating with the eSewa payment gateway. Easily handle payment initiation, success, and failure notifications in your Express app.
-
+# Node.js / Express middleware and utilities for integrating with the eSewa payment gateway, supporting signature verification, payment initiation, success/failure handling, and transaction status checks.
 # Features
 
-   Simple eSewa payment initiation with HTML form redirect
+    Initiate eSewa payments with customizable amounts, taxes, and charges.
 
-    Middleware to process payment success and failure callbacks
+    Handles payment callbacks, verifies HMAC SHA256 signatures, checks transaction status for test and production, supports JSON and HTML responses, provides TypeScript typings, flexible config, and user redirection with query parameters.
 
-    Automatic client redirection with customizable messages
-
-    Supports Node.js & Express with TypeScript typings
-    
-
-# Installation
-
+## Installation
 ```bash
-  npm install esewa-integration-server
+npm install esewa-integration-server
 ```
-
-# Quick Start
- Initialize the Integration
+## Usage
+ # Basic Setup
 ```js
+      import express from "express";
+      import EsewaIntegration from "esewa-integration-server";
 
-const EsewaIntegration = require("esewa-integration-server");
+      const app = express();
 
-const esewa = new EsewaIntegration({
-  secretKey: process.env.ESEWA_SECRET_KEY || "your-esewa-secret-key",
-  successUrl: "https://yourdomain.com/payment/success",
-  failureUrl: "https://yourdomain.com/payment/failure",
-
-  // Optional cookie settings for tracking payment failures
-  sameSite: "strict",
-  secure: true,
-});
-```
-Initiate Payment
-```js
-app.get("/esewa/initiate", async (req, res) => {
-  const { total_amount } = req.query;
-  const transactionUUID = generateUniqueUUID(); // your UUID generator function
-
-  esewa.initiatePayment(
-    {
-      total_amount,
-      transactionUUID,
-      amount: total_amount,
-      productCode: "EPAYTEST", // optional
-      // productDeliveryCharge: 0,
-      // productServiceCharge: 0,
-      // taxAmount: 0,
-    },
-    res
-  );
-});
-```
-Frontend Example (React)
-
-If using React or another frontend framework, you can render the HTML response from the initiate endpoint directly to redirect the user:
-```js
-import React, { useState } from "react";
-
-export default function Payment() {
-  const [amount, setAmount] = useState("");
-
-  async function initiatePayment(e) {
-    e.preventDefault();
-
-    try {
-      const response = await fetch(`/esewa/initiate?total_amount=${amount}`, {
-        method: "GET",
-        credentials: "include",
+      const esewa = new EsewaIntegration({
+        secretKey: "your-esewa-secret-key",
+        successUrl: "https://yourdomain.com/payment-success",
+        failureUrl: "https://yourdomain.com/payment-failure",
+        secure: true,
+        sameSite: "lax",
       });
-
-      if (!response.ok) throw new Error("Failed to initiate payment");
-
-      const html = await response.text();
-      document.open();
-      document.write(html);
-      document.close();
-    } catch (error) {
-      console.error("Payment initiation error:", error);
-    }
-  }
-
-  return (
-    <form onSubmit={initiatePayment}>
-      <input
-        type="number"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        placeholder="Enter amount"
-        required
-      />
-      <button type="submit">Pay with eSewa</button>
-    </form>
-  );
-}
 ```
-Handle Payment Success
-```js
-app.get("/payment/success", esewa.processPaymentSuccess, (req, res) => {
-  const { transaction_uuid, amount } = req.params;
-
-  console.log("Payment succeeded:", transaction_uuid, amount);
-
-  const redirectUrl = "https://yourdomain.com/success";
-  const messageProps = {
-    paymentSuccess: "Payment successful!",
-    thanks: "Thank you for your order!",
-  };
-
-  esewa.redirectToClientSite(res, redirectUrl, messageProps);
-});
-```
-Handle Payment Failure
+  # Initiate Payment
 ```js
 
-app.get("/payment/failure", esewa.processPaymentFailure, (req, res) => {
-  const { transactionUUID } = req; // set by middleware
+      app.post("/start-payment", (req, res) => {
+        esewa.initiatePayment(
+          {
+            total_amount: 1050,
+            amount: 1000,
+            transactionUUID: "unique-transaction-id-123",
+            productDeliveryCharge: 30,
+            productServiceCharge: 20,
+            taxAmount: 0,
+            productCode: "EPAYTEST",
+            responseType: "html", // or "json"
+          },
+          res
+        );
+      });
+```
 
-  console.log("Payment failed for transaction:", transactionUUID);
+# Handle Payment Success Middleware
+```js
+    app.get("/payment-success", (req, res, next) => {
+      esewa.processPaymentSuccess(req, res, next);
+    }, (req, res) => {
+      // Access decoded payment params in req.params here
+      //console.log(req.params)
+      res.send("Payment successful!");
+    });
+```
+# Handle Payment Failure Middleware
+```js
+app.get("/payment-failure", (req, res, next) => {
+  esewa.processPaymentFailure(req, res, next);
 
-  const redirectUrl = "https://yourdomain.com/failure";
-  const messageProps = {
-    paymentFailed: "Payment failed.",
-    sorry: "Sorry, your payment could not be processed.",
-  };
-
-  esewa.redirectToClientSite(res, redirectUrl, messageProps);
+}, (req, res) => {
+  //u can use req.transactionUUID to get the transaction uuid
+  //console.log(req.transactionUUID)
+  res.send("Payment failed or cancelled.");
 });
 ```
-# API Reference
-# Method	Description
+# Check Transaction Status (Async)
+```js
+const status = await EsewaIntegration.getTransactionStatus({
+  product_code: "EPAYTEST",
+  transaction_uuid: "unique-transaction-id-123",
+  total_amount: 1050,
+  isProduction: false,
+});
 
-  new EsewaIntegration(opts)	Create a new instance with config options
-  esewa.initiatePayment(paymentDetails, res)	Initiates payment and sends HTML form redirect
-  esewa.processPaymentSuccess	Express middleware to handle success callback
-  esewa.processPaymentFailure	Express middleware to handle failure callback
-  esewa.redirectToClientSite(res, url, messageProps)	Redirects to client URL with optional message data
-  
-Configuration Options
+console.log("Transaction status:", status.status);
+```
+# Redirect with Custom Query Params
+```js
+app.get("/redirect-user", (req, res) => {
+  esewa.redirectToClientSite(res, "https://yourapp.com/result", {
+    status: "success",
+    orderId: "12345",
+  });
+});
+```
 
-    secretKey (string, required): Your eSewa secret key.
+# Options
+    Option	Type	Default	Description
+    secretKey	string	"8gBm/:&EnhH.1/q"	eSewa secret key for signing
+    successUrl	string	http://localhost:9000/api/esewaPayment/success	Callback URL on payment success
+    failureUrl	string	http://localhost:9000/api/esewaPayment/failure	Callback URL on payment failure
+    secure	boolean	false	Use secure cookies
+    sameSite	`boolean	"strict"	"lax"
+    Initiate Payment Params
+    Param	Type	Required	Description
+    total_amount	number	Yes	Total amount including taxes and charges
+    amount	number	Yes	Base amount (product price)
+    transactionUUID	string	Yes	Unique transaction identifier
+    productDeliveryCharge	number	No	Optional delivery charge
+    productServiceCharge	number	No	Optional service charge
+    taxAmount	number	No	Optional tax amount
+    productCode	string	No	Product code (default: "EPAYTEST")
+    responseType	`"html"	"json"`	No
+    Error Handling
 
-    successUrl (string, required): URL to handle successful payment callbacks.
+All middleware catch and return appropriate HTTP errors with JSON messages if unexpected errors occur during processing.
+Contributing
 
-    failureUrl (string, required): URL to handle failed payment callbacks.
 
-    sameSite (string, optional): Cookie SameSite attribute (e.g., "strict").
+# MORE DETAILS
+# TYPE DEFs
 
-    secure (boolean, optional): Cookie Secure attribute (true or false).
+| **Type Name**                | **Field**             | **Type**                                | **Description**                                                                 |
+|-----------------------------|-----------------------|------------------------------------------|---------------------------------------------------------------------------------|
+| `EsewaConfig`               | `merchantCode`        | `string`                                 | Your merchant code provided by eSewa.                                          |
+|                             | `successURL`          | `string`                                 | Callback URL on successful payment.                                            |
+|                             | `failureURL`          | `string`                                 | Callback URL on failed payment.                                                |
+|                             | `environment`         | `'test' \| 'production'` (optional)       | Environment setting; defaults to `'test'`.                                     |
+|                             | `secretKey`           | `string`                                 | Secret key for signature verification.                                         |
+|                             | `baseRedirectURL`     | `string` (optional)                      | Optional client redirect base URL after payment.                               |
+| `EsewaCallbackQuery`        | `amt`                 | `string`                                 | Amount involved in the transaction.                                            |
+|                             | `pid`                 | `string`                                 | Product ID of the transaction.                                                 |
+|                             | `rid`                 | `string`                                 | Reference ID returned by eSewa.                                                |
+|                             | `scd`                 | `string`                                 | Merchant code used during transaction.                                         |
+|                             | `su`                  | `string` (optional)                      | Optional override for success redirect.                                        |
+|                             | `fu`                  | `string` (optional)                      | Optional override for failure redirect.                                        |
+| `EsewaStatusResponse`       | `status`              | `'Success' \| 'Failure' \| 'Pending'`     | Status of the transaction after verification.                                  |
+|                             | `referenceId`         | `string`                                 | Unique reference ID from eSewa.                                                |
+|                             | `productId`           | `string`                                 | Product ID of the original transaction.                                        |
+|                             | `amount`              | `number`                                 | Amount paid in the transaction.                                                |
+|                             | `message`             | `string` (optional)                      | Optional message or error detail.                                              |
+| `RedirectOptions`           | `siteName`            | `string`                                 | Base site name for redirection.                                                |
+|                             | `messageProps`        | `Record<string, string \| number>`       | Object of message props passed as query parameters.                            |
+|                             | `res`                 | `express.Response`                       | Express response object for handling redirection.                              |
+| `SignaturePayload`          | `amt`                 | `string`                                 | Amount.                                                                         |
+|                             | `pid`                 | `string`                                 | Product ID.                                                                     |
+|                             | `scd`                 | `string`                                 | Merchant code.                                                                  |
+|                             | `rid`                 | `string`                                 | Reference ID.                                                                   |
+|                             | `secretKey`           | `string`                                 | Secret key used to compute HMAC.                                               |
+| `PaymentInitiationOptions`  | `amount`              | `number`                                 | Amount to be paid.                                                             |
+|                             | `productId`           | `string`                                 | Product ID.                                                                     |
+|                             | `merchantCode`        | `string`                                 | Merchant code.                                                                  |
+|                             | `successURL`          | `string`                                 | Success redirect URL.                                                           |
+|                             | `failureURL`          | `string`                                 | Failure redirect URL.                                                           |
+|                             | `responseType`        | `'json' \| 'form'` (optional)           | Format of the response. Defaults to `'form'`.                                  |
+| `EsewaMiddlewareHandler`    | —                     | `Function(req, res, next): void`         | Standard Express middleware for handling eSewa callbacks.                      |
+| `PaymentSuccessHandler`     | —                     | `Function(query, status, req, res): void`| Called when payment succeeds.                                                  |
+| `PaymentFailureHandler`     | —                     | `Function(query, req, res): void`        | Called when payment fails.                                                     |
+| `GeneratePaymentForm`       | —                     | `Function(options): string \| object`     | Generates HTML form or JSON for payment initiation.                            |
+| `VerifySignature`           | —                     | `Function(payload, signature): boolean`  | Validates the HMAC-SHA256 signature received from eSewa.                       |
 
-# Get Your Secret Key for prod from esewa,   secret key for dev is already included
 
-# Notes
 
-    Make sure to implement proper error handling in your routes.
-
-    Update success and failure URLs for production environment.
-
-    This package uses cookies to track payment state on failure for better UX.
-
-    You can extend and customize middleware handlers as needed.
-
+Feel free to open issues or PRs for bugs, feature requests, or improvements!
 # License
 
-#MIT License © Biswa Baral
+MIT License

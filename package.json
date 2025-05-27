@@ -1,6 +1,6 @@
 {
   "name": "esewa-integration-server",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "A flexible npm package for integrating eSewa payments.",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -43,7 +43,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/biswabaral417/esewa-integration-server.git"
+    "url": "git+https://github.com/biswabaral417/esewa-integration-server.git"
   },
   "bugs": {
     "url": "https://github.com/biswabaral417/esewa-integration-server/issues"
