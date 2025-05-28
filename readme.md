@@ -13,6 +13,7 @@ npm install esewa-integration-server
 ```
 ## Usage
  # Basic Setup
+ esm 
 ```js
       import express from "express";
       import EsewaIntegration from "esewa-integration-server";
@@ -27,6 +28,22 @@ npm install esewa-integration-server
         sameSite: "lax",
       });
 ```
+  cjs
+```js
+      import express from "express";
+      import EsewaIntegration from "esewa-integration-server";
+
+      const app = express();
+
+      const esewa = new EsewaIntegration({
+        secretKey: "your-esewa-secret-key",
+        successUrl: "https://yourdomain.com/payment-success",
+        failureUrl: "https://yourdomain.com/payment-failure",
+        secure: true,
+        sameSite: "lax",
+      });
+```
+
   # Initiate Payment
 ```js
 
