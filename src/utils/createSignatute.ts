@@ -1,6 +1,6 @@
 import { createSignatureFunctionType } from "../Types";
 
-const CryptoJS = require('crypto-js');
+import CryptoJS from "crypto-js";
 
 export const createSignature: createSignatureFunctionType = (secretKey, message) => {
     try {

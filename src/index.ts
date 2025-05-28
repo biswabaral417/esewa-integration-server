@@ -14,7 +14,7 @@ import {
 import { initiatePayment as init } from "./initiatePayment";
 import { checkTransactionStatus } from "./checkStatus";
 
-class EsewaIntegration {
+export class EsewaIntegration {
     private secretKey: string;
     private successUrl: string;
     private failureUrl: string;
@@ -93,4 +93,3 @@ class EsewaIntegration {
     }
 }
 
-export default EsewaIntegration;

@@ -64,4 +64,4 @@ declare class EsewaIntegration {
     static getTransactionStatus(params: TransactionStatusParams): Promise<TransactionStatusResponse>;
 }
 
-export { EsewaIntegration as default };
+export { EsewaIntegration };
